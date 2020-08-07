@@ -21,15 +21,15 @@ void GadoGadoFXAudioProcessorEditor::initScreen() {
 //-------------------------------------start dari main effect---------------------------------------------------------
 void GadoGadoFXAudioProcessorEditor::main_Delay() {
     const juce::Array<juce::AudioProcessorParameter*> parameters = audioProcessor.getParameters();
-    MakeSlider(DelayTimeSlider, juce::Slider::SliderStyle::Rotary, parameters, 0, koor_delay_time_slider);
-    MakeSlider(FeedbackSlider, juce::Slider::SliderStyle::Rotary, parameters, 1, koor_feedback_slider);
-    MakeSlider(MixSlider, juce::Slider::SliderStyle::Rotary, parameters, 2, koor_mix_slider);
+    MakeSlider(DelayTimeSlider, juce::Slider::SliderStyle::Rotary, parameters, 0);
+    MakeSlider(FeedbackSlider, juce::Slider::SliderStyle::Rotary, parameters, 1);
+    MakeSlider(MixSlider, juce::Slider::SliderStyle::Rotary, parameters, 2);
     
 }
 
 void GadoGadoFXAudioProcessorEditor::main_GainControl() {
     const juce::Array<juce::AudioProcessorParameter*> parameters = audioProcessor.getParameters();
-    MakeSlider(gainSlider, juce::Slider::SliderStyle::Rotary, parameters, 3, koor_gain_slider);
+    MakeSlider(gainSlider, juce::Slider::SliderStyle::Rotary, parameters, 3);
 }
 
 //----------------------------------------end dari main effect------------------------------------------------------
@@ -46,7 +46,7 @@ void GadoGadoFXAudioProcessorEditor::On_Off_Button() {
 
 //--------------------------------------Start fungsi untuk bikin komponen --------------------------------------
 void GadoGadoFXAudioProcessorEditor::MakeSlider(juce::Slider& slider, const juce::Slider::SliderStyle& sliderstyle
-    , const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter, const juce::Array <int> koordinat)
+    , const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter)
 {   
     
     const juce::AudioProcessorParameterWithID* parameter = dynamic_cast<juce::AudioProcessorParameterWithID*> (parameters[no_parameter]);
@@ -58,7 +58,8 @@ void GadoGadoFXAudioProcessorEditor::MakeSlider(juce::Slider& slider, const juce
 
     juce::Label* aLabel;
     labels.add(aLabel = new juce::Label(parameter->name, parameter->name));
-    aLabel->setBounds(koordinat[0], koordinat[1], koordinat[2], koordinat[3]);
+    aLabel->attachToComponent(&slider, false);
+    //aLabel->setBounds(koordinat[0], koordinat[1], koordinat[2], koordinat[3]);
     addAndMakeVisible(aLabel);
    
 }
@@ -70,12 +71,14 @@ void GadoGadoFXAudioProcessorEditor::MakeToggleButton(juce::ToggleButton& toggle
     togglebutton.setToggleState(parameter->getDefaultValue(), juce::dontSendNotification);
     ButtonAttachment* aToggleButtonAttachment;
     toggleButtonAttachments.add(aToggleButtonAttachment = new ButtonAttachment(audioProcessor.parameters.valueTreeState, parameter->paramID, togglebutton));
-    togglebutton.changeWidthToFitText();
-    addAndMakeVisible(togglebutton);
-   /* juce::Label* aLabel;
+    
+    juce::Label* aLabel;
     labels.add(aLabel = new juce::Label(parameter->name, parameter->name));
-    aLabel->setBounds(koordinat[0], koordinat[1], koordinat[2], koordinat[3]);
-    addAndMakeVisible(aLabel);*/
+    aLabel->attachToComponent(&togglebutton, true);
+    aLabel->setJustificationType(juce::Justification::centred);
+    //togglebutton.changeWidthToFitText();
+    addAndMakeVisible(togglebutton);
+    addAndMakeVisible(aLabel);
 }
 
 //----------------------------------------end fungsi untuk bikin komponen-----------------------------------------------------
@@ -97,13 +100,12 @@ void GadoGadoFXAudioProcessorEditor::resized()
 {
 
     gainSlider.setBounds(20, 50, 115, 115);
-    toselGainControl.setBounds(0, 0, 20, 20);
+    toselGainControl.setBounds(50, 0, 20, 20);
 
-   DelayTimeSlider.setBounds(155, 50, 115, 115);
-    FeedbackSlider.setBounds(275, 50, 115, 115);
-    MixSlider.setBounds(395, 50, 115, 115);
-    toselDelay.setBounds(255, 0, 20, 20);
-    
+   DelayTimeSlider.setBounds(155, 50, 80, 80);
+    FeedbackSlider.setBounds(275, 50, 80, 80);
+    MixSlider.setBounds(395, 50, 80, 80);
+    toselDelay.setBounds(315, 0, 20, 20);    
 
 }
 
