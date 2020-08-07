@@ -1,2 +1,3 @@
 # Gado-Gado-FX
-Open source under development VST2 plugin that contains some audio effects
+Open source VST2 plugin that contains some audio effects
+-----under development-------------
