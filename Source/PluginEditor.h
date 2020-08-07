@@ -1,24 +1,10 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
-
 #pragma once
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
-//==============================================================================
-/**
-*/
 
-
-
-class GadoGadoFXAudioProcessorEditor : public juce::AudioProcessorEditor//public juce::Slider::Listener
-                                            //,public juce::Button::Listener
+class GadoGadoFXAudioProcessorEditor : public juce::AudioProcessorEditor                                          
                                              
 {
 public:
@@ -29,9 +15,6 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
-    //void sliderValueChanged(juce::Slider *slider) override;
-
-  //  void buttonClicked(juce::Button* tb )override;
     enum RadioButtonIds
     {
         PemilihMode = 1001
