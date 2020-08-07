@@ -102,16 +102,6 @@ void GadoGadoFXAudioProcessor::changeProgramName (int index, const juce::String&
 //==============================================================================
 void GadoGadoFXAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-   /* //init var pemilih mode
-    { 
-      modeGainControl = 0;
-      modeDelay = 0;
-    }*/  
-
-    //init var gain control
-    //penguatan = 1.0f;
-
-    //init delay
     {
         const double smoothTime = 1e-3;
         paramDelayTime.reset(sampleRate, smoothTime);
