@@ -40,34 +40,7 @@ void GadoGadoFXAudioProcessorEditor::main_GainControl() {
     MakeSlider(gainSlider, juce::Slider::SliderStyle::Rotary, parameters, 3, koor_gain_slider);
 }
 
-//----------------------------------------end dari main effect-------------------------------------------------------
-
-/*void GadoGadoFXAudioProcessorEditor::New_make_slider(const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter) {
-    if (const juce::AudioProcessorParameterWithID* parameter = dynamic_cast<juce::AudioProcessorParameterWithID*> (parameters[no_parameter])) {
-        juce::Slider* aSlider;
-        sliders.add(aSlider = new juce::Slider());
-        aSlider->setTextValueSuffix(parameter->label);
-        aSlider->setSliderStyle(juce::Slider::SliderStyle::Rotary);
-        aSlider->setTextBoxStyle(juce::Slider::TextBoxBelow, true, 80, 25);
-        SliderAttachment* aSliderAttachment;
-        sliderAttachments.add(aSliderAttachment = new SliderAttachment(audioProcessor.parameters.valueTreeState, parameter->paramID, *aSlider));
-        componenku.add(aSlider);
-
-        componenku.getLast()->setName(parameter->name);
-        componenku.getLast()->setComponentID(parameter->paramID);
-
-        juce::Label* aLabel;
-        labels.add(aLabel = new juce::Label(parameter->name, parameter->name));
-        aLabel->attachToComponent(componenku.getLast(), true);
-        addAndMakeVisible(aLabel);
-
-        componenku.getLast()->setName(parameter->name);
-        componenku.getLast()->setComponentID(parameter->paramID);
-        addAndMakeVisible(componenku.getLast());
-    }
-    
-}*/
-
+//----------------------------------------end dari main effect------------------------------------------------------
 
 void GadoGadoFXAudioProcessorEditor::On_Off_Button() {
     const juce::Array<juce::AudioProcessorParameter*> parameters = audioProcessor.getParameters();
