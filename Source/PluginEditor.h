@@ -40,16 +40,16 @@ private:
     juce::OwnedArray<juce::Label> labels;
     juce::OwnedArray<juce::Slider> sliders;
     juce::OwnedArray<juce::ToggleButton> toggles;
-    juce::Slider gainSlider; const juce::Array <int> koor_gain_slider = { 20, 35, 80, 20 };
+    juce::Slider gainSlider; 
     juce::ToggleButton toselGainControl;
 
     juce::Label label_gain;
 
 
 
-    juce::Slider DelayTimeSlider; const juce::Array <int> koor_delay_time_slider={ 120, 35, 80, 20 };
-    juce::Slider FeedbackSlider; const juce::Array <int> koor_feedback_slider = { 220, 35, 80, 20 };
-    juce::Slider MixSlider; const juce::Array <int> koor_mix_slider = { 320, 35, 150, 20 };
+    juce::Slider DelayTimeSlider; 
+    juce::Slider FeedbackSlider; 
+    juce::Slider MixSlider; 
     juce::ToggleButton toselDelay;
 
 

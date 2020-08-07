@@ -48,7 +48,6 @@ void GadoGadoFXAudioProcessorEditor::On_Off_Button() {
 void GadoGadoFXAudioProcessorEditor::MakeSlider(juce::Slider& slider, const juce::Slider::SliderStyle& sliderstyle
     , const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter)
 {   
-    
     const juce::AudioProcessorParameterWithID* parameter = dynamic_cast<juce::AudioProcessorParameterWithID*> (parameters[no_parameter]);
     SliderAttachment* aSliderAttachment;
     sliderAttachments.add(aSliderAttachment = new SliderAttachment(audioProcessor.parameters.valueTreeState, parameter->paramID, slider));
@@ -59,7 +58,6 @@ void GadoGadoFXAudioProcessorEditor::MakeSlider(juce::Slider& slider, const juce
     juce::Label* aLabel;
     labels.add(aLabel = new juce::Label(parameter->name, parameter->name));
     aLabel->attachToComponent(&slider, false);
-    //aLabel->setBounds(koordinat[0], koordinat[1], koordinat[2], koordinat[3]);
     addAndMakeVisible(aLabel);
    
 }
@@ -76,7 +74,6 @@ void GadoGadoFXAudioProcessorEditor::MakeToggleButton(juce::ToggleButton& toggle
     labels.add(aLabel = new juce::Label(parameter->name, parameter->name));
     aLabel->attachToComponent(&togglebutton, true);
     aLabel->setJustificationType(juce::Justification::centred);
-    //togglebutton.changeWidthToFitText();
     addAndMakeVisible(togglebutton);
     addAndMakeVisible(aLabel);
 }
@@ -92,7 +89,6 @@ void GadoGadoFXAudioProcessorEditor::paint (juce::Graphics& g)
     g.setFont(16.0f);
     g.fillAll(juce::Colours::black);
     g.setColour(juce::Colours::white);
-    //g.drawText("Gain Control", 0, 20, 150, 20, juce::Justification::centred, true);
     g.drawText("dB", 0, 165, 150, 20, juce::Justification::centred, true); 
 }
 
