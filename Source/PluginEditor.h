@@ -4,7 +4,7 @@
 #include "PluginProcessor.h"
 
 
-class GadoGadoFXAudioProcessorEditor : public juce::AudioProcessorEditor//, private juce::Timer
+class GadoGadoFXAudioProcessorEditor : public juce::AudioProcessorEditor, private juce::Timer
                                              
 {
 public:
@@ -12,7 +12,6 @@ public:
     ~GadoGadoFXAudioProcessorEditor() override;
 
     //==============================================================================
- //   void drawLabel(juce::Graphics& g, juce::Label& label) override;
     void paint (juce::Graphics&) override;
     void resized() override;
     
@@ -31,7 +30,7 @@ private:
     void main_ParameterEQ();
     void MakeToggleButton(juce::ToggleButton& togglebutton, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter);
     void MakeSlider(juce::Slider& slider, const juce::Slider::SliderStyle& sliderstyle, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter);
-    void MakeComboBox(juce::ComboBox& combobox, juce::Array<juce::StringArray> comboBoxItemLists, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter);
+    void MakeComboBox(juce::ComboBox& combobox, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter, int no_item_list);
     
 
     typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
@@ -57,8 +56,8 @@ private:
     juce::Slider MixSlider; 
     juce::ToggleButton toselDelay;
 
-   // void timerCallback() override;
-   // void updateUIcomponents();
+    void timerCallback() override;
+    void updateUIcomponents();
     juce::Label bandwidthLabel;
 
     juce::Slider FrequencySlider;

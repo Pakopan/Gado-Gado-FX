@@ -205,10 +205,10 @@ class PluginParameterComboBox : public PluginParameter
 {
 public:
     PluginParameterComboBox(PluginParametersManager& parametersManager,
-        const juce::String& paramName,
-        const juce::StringArray items,
-        const int defaultChoice = 0,
-        const std::function<float(const float)> callback = nullptr)
+                            const juce::String& paramName,
+                            const juce::StringArray items,
+                            const int defaultChoice = 0,
+                            const std::function<float(const float)> callback = nullptr)
         : PluginParameter(parametersManager, callback)
         , paramName(paramName)
         , items(items)

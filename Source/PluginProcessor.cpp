@@ -12,30 +12,33 @@
 //==============================================================================
 GadoGadoFXAudioProcessor::GadoGadoFXAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       ),
+    : AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+        .withInput("Input", juce::AudioChannelSet::stereo(), true)
+#endif
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+    ),
 #endif
     parameters(*this)
-    , paramDelayTime(parameters, "Delay time", "s", 0.0f, 1.0f, 0.1f)
-    , paramFeedback(parameters, "Feedback", "", 0.0f, 0.9f, 0.7f)
-    , paramMix(parameters, "Mix", "", 0.0f, 1.0f, 1.0f)
-    , paramGainControl(parameters, "Gain", "", -40.0f, 20.0f, 0.0f)
-    , paramToggleGainControl(parameters, "ON")
-    , paramToggleDelay(parameters, "OW")
-    , paramFrequency(parameters, "Frequency", "Hz", 10.0f, 20000.0f, 1500.0f,
+    , paramDelayTime(parameters, "Delay time", "s", 0.0f, 1.0f, 0.1f)           //0
+    , paramFeedback(parameters, "Feedback", "", 0.0f, 0.9f, 0.7f)               //1
+    , paramMix(parameters, "Mix", "", 0.0f, 1.0f, 1.0f)                         //2
+    , paramGainControl(parameters, "Gain", "", -40.0f, 20.0f, 0.0f)             //3
+    , paramToggleGainControl(parameters, "ON")                                 //4
+    , paramToggleDelay(parameters, "OW")                                    // 5
+
+
+    , paramFrequency(parameters, "Frequency", "Hz", 10.0f, 20000.0f, 1500.0f,                                       //6
         [this](float value) { paramFrequency.setCurrentAndTargetValue(value); updateFilters(); return value; })
-    , paramQfactor(parameters, "Q Factor", "", 0.1f, 20.0f, sqrt(2.0f),
+    , paramQfactor(parameters, "Q Factor", "", 0.1f, 20.0f, sqrt(2.0f),                                             //7
         [this](float value) { paramQfactor.setCurrentAndTargetValue(value); updateFilters(); return value; })
-    , paramGain(parameters, "Gain P_EQ", "dB", -12.0f, 12.0f, 12.0f,
+    , paramGain(parameters, "Gain P_EQ", "dB", -12.0f, 12.0f, 12.0f,                                                //8
         [this](float value) { paramGain.setCurrentAndTargetValue(value); updateFilters(); return value; })
-    , paramFilterType(parameters, "Filter type", filterTypeItemsUI, filterTypePeakingNotch,
+    , paramFilterType(parameters, "Filter type", filterTypeItemsUI, filterTypePeakingNotch,                            //9
         [this](float value) { paramFilterType.setCurrentAndTargetValue(value); updateFilters(); return value; })
+    , testing(parameters, "tipefilter", filterTypeItemsUI, filterTypePeakingNotch)
 {
     parameters.valueTreeState.state = juce::ValueTree(juce::Identifier(getName().removeCharacters("- ")));
 }
@@ -131,14 +134,14 @@ void GadoGadoFXAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
 
         delayWritePosition = 0;
         //============================================
-/*
+
         filters.clear();
         for (int i = 0; i < getTotalNumInputChannels(); ++i) {
             Filter* filter;
             filters.add(filter = new Filter());
         }
         updateFilters();
-        */
+        
     }
 
 }

@@ -69,9 +69,10 @@ public:
     PluginParameterLinSlider paramQfactor;
     PluginParameterLinSlider paramGain;
     PluginParameterComboBox paramFilterType;
+    PluginParameterComboBox testing;
 
   
-    juce::StringArray filterTypeItemsUI = {
+ const juce::StringArray filterTypeItemsUI = {
         "Low-pass",
         "High-pass",
         "Low-shelf",
