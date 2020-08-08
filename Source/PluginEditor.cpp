@@ -8,6 +8,7 @@ GadoGadoFXAudioProcessorEditor::GadoGadoFXAudioProcessorEditor (GadoGadoFXAudioP
    initScreen();
    main_GainControl();
    main_Delay();
+   main_ParameterEQ();
    On_Off_Button();
 }
 
@@ -15,7 +16,7 @@ GadoGadoFXAudioProcessorEditor::GadoGadoFXAudioProcessorEditor (GadoGadoFXAudioP
 
 void GadoGadoFXAudioProcessorEditor::initScreen() {
     
-    setSize(515, 250);
+    setSize(515, 600);
 }
 
 //-------------------------------------start dari main effect---------------------------------------------------------
@@ -30,6 +31,15 @@ void GadoGadoFXAudioProcessorEditor::main_Delay() {
 void GadoGadoFXAudioProcessorEditor::main_GainControl() {
     const juce::Array<juce::AudioProcessorParameter*> parameters = audioProcessor.getParameters();
     MakeSlider(gainSlider, juce::Slider::SliderStyle::Rotary, parameters, 3);
+}
+
+void GadoGadoFXAudioProcessorEditor::main_ParameterEQ()
+{
+    const juce::Array<juce::AudioProcessorParameter*> parameters = audioProcessor.getParameters();
+    MakeSlider(FrequencySlider, juce::Slider::SliderStyle::Rotary, parameters, 6);
+    MakeSlider(QFactorSlider, juce::Slider::SliderStyle::Rotary, parameters, 7);
+    MakeSlider(EQ_GainSlider, juce::Slider::SliderStyle::Rotary, parameters, 8);
+   // MakeComboBox(FilterTypeComboBox, audioProcessor.filterTypeItemsUI, parameters, 9);
 }
 
 //----------------------------------------end dari main effect------------------------------------------------------
@@ -78,6 +88,27 @@ void GadoGadoFXAudioProcessorEditor::MakeToggleButton(juce::ToggleButton& toggle
     addAndMakeVisible(aLabel);
 }
 
+/*
+void GadoGadoFXAudioProcessorEditor::MakeComboBox(juce::ComboBox& combobox, juce::Array<juce::StringArray> comboBoxItemLists, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter)
+{
+    const juce::AudioProcessorParameterWithID* parameter = dynamic_cast<juce::AudioProcessorParameterWithID*> (parameters[no_parameter]);
+    combobox.setEditableText(false);
+    combobox.setJustificationType(juce::Justification::left);
+    combobox.addItemList(comboBoxItemLists, 1);
+
+
+    ComboBoxAttachment* aComboBoxAttachment;
+    comboBoxAttachments.add(aComboBoxAttachment = new ComboBoxAttachment(audioProcessor.parameters.valueTreeState, parameter->paramID, combobox));
+
+    juce::Label* aLabel;
+    labels.add(aLabel = new juce::Label(parameter->name, parameter->name));
+    aLabel->attachToComponent(&combobox, true);
+    aLabel->setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(combobox);
+    addAndMakeVisible(aLabel);
+}
+
+*/
 //----------------------------------------end fungsi untuk bikin komponen-----------------------------------------------------
 
 
@@ -103,8 +134,54 @@ void GadoGadoFXAudioProcessorEditor::resized()
     MixSlider.setBounds(395, 50, 80, 80);
     toselDelay.setBounds(315, 0, 20, 20);    
 
+    FrequencySlider.setBounds(20, 300, 80,80);
+    QFactorSlider.setBounds(155, 300, 80, 80);
+    EQ_GainSlider.setBounds(275, 300, 80, 80);
 }
 
+/*
+void GadoGadoFXAudioProcessorEditor::timerCallback()
+{
+    updateUIcomponents();
+}
+
+
+void GadoGadoFXAudioProcessorEditor::updateUIcomponents()
+{
+    juce::String bandwidthText = juce::String::formatted("Bandwidth: %.1fHz",
+        audioProcessor.paramFrequency.getTargetValue() /
+        audioProcessor.paramQfactor.getTargetValue());
+
+    bandwidthLabel.setText(bandwidthText, juce::dontSendNotification);
+
+    //======================================
+
+    bool filterTypeDoesNotHaveQfactor =
+        audioProcessor.paramFilterType.getTargetValue() == audioProcessor.filterTypeLowPass ||
+        audioProcessor.paramFilterType.getTargetValue() == audioProcessor.filterTypeHighPass ||
+        audioProcessor.paramFilterType.getTargetValue() == audioProcessor.filterTypeLowShelf ||
+        audioProcessor.paramFilterType.getTargetValue() == audioProcessor.filterTypeHighShelf;
+    bool filterTypeDoesNotHaveGain =
+        audioProcessor.paramFilterType.getTargetValue() == audioProcessor.filterTypeLowPass ||
+        audioProcessor.paramFilterType.getTargetValue() == audioProcessor.filterTypeHighPass ||
+        audioProcessor.paramFilterType.getTargetValue() == audioProcessor.filterTypeBandPass ||
+        audioProcessor.paramFilterType.getTargetValue() == audioProcessor.filterTypeBandStop;
+
+    if (filterTypeDoesNotHaveQfactor) {
+        findChildWithID(audioProcessor.paramQfactor.paramID)->setEnabled(false);
+        bandwidthLabel.setVisible(false);
+    }
+    else {
+        findChildWithID(audioProcessor.paramQfactor.paramID)->setEnabled(true);
+        bandwidthLabel.setVisible(true);
+    }
+
+    if (filterTypeDoesNotHaveGain)
+        findChildWithID(audioProcessor.paramGain.paramID)->setEnabled(false);
+    else
+        findChildWithID(audioProcessor.paramGain.paramID)->setEnabled(true);
+}
+*/
 GadoGadoFXAudioProcessorEditor::~GadoGadoFXAudioProcessorEditor()
 {
 }

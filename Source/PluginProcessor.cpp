@@ -28,6 +28,14 @@ GadoGadoFXAudioProcessor::GadoGadoFXAudioProcessor()
     , paramGainControl(parameters, "Gain", "", -40.0f, 20.0f, 0.0f)
     , paramToggleGainControl(parameters, "ON")
     , paramToggleDelay(parameters, "OW")
+    , paramFrequency(parameters, "Frequency", "Hz", 10.0f, 20000.0f, 1500.0f,
+        [this](float value) { paramFrequency.setCurrentAndTargetValue(value); updateFilters(); return value; })
+    , paramQfactor(parameters, "Q Factor", "", 0.1f, 20.0f, sqrt(2.0f),
+        [this](float value) { paramQfactor.setCurrentAndTargetValue(value); updateFilters(); return value; })
+    , paramGain(parameters, "Gain P_EQ", "dB", -12.0f, 12.0f, 12.0f,
+        [this](float value) { paramGain.setCurrentAndTargetValue(value); updateFilters(); return value; })
+    , paramFilterType(parameters, "Filter type", filterTypeItemsUI, filterTypePeakingNotch,
+        [this](float value) { paramFilterType.setCurrentAndTargetValue(value); updateFilters(); return value; })
 {
     parameters.valueTreeState.state = juce::ValueTree(juce::Identifier(getName().removeCharacters("- ")));
 }
@@ -122,6 +130,15 @@ void GadoGadoFXAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
         delayBuffer.clear();
 
         delayWritePosition = 0;
+        //============================================
+/*
+        filters.clear();
+        for (int i = 0; i < getTotalNumInputChannels(); ++i) {
+            Filter* filter;
+            filters.add(filter = new Filter());
+        }
+        updateFilters();
+        */
     }
 
 }
@@ -248,10 +265,43 @@ void GadoGadoFXAudioProcessor::DefaultMode(juce::AudioBuffer<float>& buffer)
     }
 }
 
+
+void GadoGadoFXAudioProcessor::ParameterEQMode(juce::AudioBuffer<float>& buffer)
+{  
+    juce::ScopedNoDenormals noDenormals;
+
+    const int numInputChannels = getTotalNumInputChannels();
+    const int numOutputChannels = getTotalNumOutputChannels();
+    const int numSamples = buffer.getNumSamples();
+
+    //======================================
+
+    for (int channel = 0; channel < numInputChannels; ++channel) {
+        float* channelData = buffer.getWritePointer(channel);
+        filters[channel]->processSamples(channelData, numSamples);
+    }
+
+    for (int channel = numInputChannels; channel < numOutputChannels; ++channel)
+        buffer.clear(channel, 0, numSamples);
+}
+
+void GadoGadoFXAudioProcessor::updateFilters()
+{
+    double discreteFrequency = 2.0 * M_PI * (double)paramFrequency.getTargetValue() / getSampleRate();
+    double qFactor = (double)paramQfactor.getTargetValue();
+    double gain = pow(10.0, (double)paramGain.getTargetValue() * 0.05);
+    int type = (int)paramFilterType.getTargetValue();
+
+    for (int i = 0; i < filters.size(); ++i)
+        filters[i]->updateCoefficients(discreteFrequency, qFactor, gain, type);
+        
+}
+
 void GadoGadoFXAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
    GainControlMode(buffer);
    DelayMode(buffer);
+  // ParameterEQMode(buffer);
     
 }
 
