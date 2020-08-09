@@ -55,7 +55,11 @@ private:
     juce::Slider EQ_GainSlider;
     juce::ComboBox FilterTypeComboBox;
 
-
+    juce::Slider PS_Shift;
+    juce::ComboBox PS_FFTSize;
+    juce::ComboBox PS_HopSize;
+    juce::ComboBox PS_WindowType;
+    juce::ToggleButton toselPS;
 
     juce::Label bandwidthLabel;
     
@@ -67,9 +71,9 @@ private:
     void main_ParameterEQ();
     void MakeToggleButton(juce::ToggleButton& togglebutton, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter);
     void MakeSlider(juce::Slider& slider, const juce::Slider::SliderStyle& sliderstyle, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter);
-    void MakeComboBox(juce::ComboBox &combobox, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter);
+    void MakeComboBox(juce::ComboBox &combobox, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter,int no_combobox);
     void updateUIcomponents();
-
+    void main_PitchShift();
    
 
     //=============================================================================================

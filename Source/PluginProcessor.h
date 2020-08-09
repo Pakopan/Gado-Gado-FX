@@ -28,6 +28,59 @@ public:
        "Peaking/Notch"
     };
 
+    juce::StringArray fftSizeItemsUI = {
+    "32",
+    "64",
+    "128",
+    "256",
+    "512",
+    "1024",
+    "2048",
+    "4096",
+    "8192"
+    };
+
+    enum fftSizeIndex {
+        fftSize32 = 0,
+        fftSize64,
+        fftSize128,
+        fftSize256,
+        fftSize512,
+        fftSize1024,
+        fftSize2048,
+        fftSize4096,
+        fftSize8192,
+    };
+
+    //======================================
+
+    juce::StringArray hopSizeItemsUI = {
+        "1/2 Window",
+        "1/4 Window",
+        "1/8 Window",
+    };
+
+    enum hopSizeIndex {
+        hopSize2 = 0,
+        hopSize4,
+        hopSize8,
+    };
+
+    //======================================
+
+    juce::StringArray windowTypeItemsUI = {
+        "Bartlett",
+        "Hann",
+        "Hamming",
+    };
+
+    enum windowTypeIndex {
+        windowTypeBartlett = 0,
+        windowTypeHann,
+        windowTypeHamming,
+    };
+
+
     //==============================================================================
     GadoGadoFXAudioProcessor();
     ~GadoGadoFXAudioProcessor() override;
@@ -160,7 +213,53 @@ public:
     };
     juce::OwnedArray<Filter> filters;
     void updateFilters();
+    //======================================
+   //======================================
 
+    void updateFftSize();
+    void updateHopSize();
+    void updateAnalysisWindow();
+    void updateWindow(const juce::HeapBlock<float>& window, const int windowLength);
+    void updateWindowScaleFactor();
+
+    float princArg(const float phase);
+
+    //======================================
+
+    juce::CriticalSection lock;
+
+    int fftSize;
+    std::unique_ptr<juce::dsp::FFT> fft;
+
+    int inputBufferLength;
+    int inputBufferWritePosition;
+    juce::AudioSampleBuffer inputBuffer;
+
+    int outputBufferLength;
+    int outputBufferWritePosition;
+    int outputBufferReadPosition;
+    juce::AudioSampleBuffer outputBuffer;
+
+    juce::HeapBlock<float> fftWindow;
+    juce::HeapBlock<juce::dsp::Complex<float>> fftTimeDomain;
+    juce::HeapBlock<juce::dsp::Complex<float>> fftFrequencyDomain;
+
+    int samplesSinceLastFFT;
+
+    int overlap;
+    int hopSize;
+    float windowScaleFactor;
+
+    //======================================
+
+    juce::HeapBlock<float> omega;
+    juce::AudioSampleBuffer inputPhase;
+    juce::AudioSampleBuffer outputPhase;
+    bool needToResetPhases;
+
+ 
+
+    //========================================
     PluginParametersManager parameters;
 
     PluginParameterLinSlider paramDelayTime;
@@ -178,11 +277,19 @@ public:
     PluginParameterLinSlider paramGain;
     PluginParameterComboBox paramFilterType;
     PluginParameterToggle paramToggleEQ;
+    //======================================================
+
+    PluginParameterLinSlider paramShift;
+    PluginParameterComboBox paramFftSize;
+    PluginParameterComboBox paramHopSize;
+    PluginParameterComboBox paramWindowType;
+    PluginParameterToggle paramTogglePS;
 
 private:
     void DelayMode(juce::AudioBuffer<float>& buffer);
     void GainControlMode(juce::AudioBuffer<float>& buffer);
     void ParameterEQMode(juce::AudioBuffer<float>& buffer);
+    void PitchShift(juce::AudioBuffer<float>& buffer);
     void DefaultMode (juce::AudioBuffer<float>& buffer);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GadoGadoFXAudioProcessor)

@@ -12,6 +12,7 @@ GadoGadoFXAudioProcessorEditor::GadoGadoFXAudioProcessorEditor (GadoGadoFXAudioP
    main_Delay();
    On_Off_Button();
    main_ParameterEQ();
+   main_PitchShift();
    startTimer(50);
 }
 
@@ -19,7 +20,7 @@ GadoGadoFXAudioProcessorEditor::GadoGadoFXAudioProcessorEditor (GadoGadoFXAudioP
 
 void GadoGadoFXAudioProcessorEditor::initScreen() {
     
-    setSize(515, 600);
+    setSize(900, 450);
     
 }
 
@@ -43,9 +44,17 @@ void GadoGadoFXAudioProcessorEditor::main_ParameterEQ()
     MakeSlider(FrequencySlider, juce::Slider::SliderStyle::Rotary, parameters, 6);
     MakeSlider(QFactorSlider, juce::Slider::SliderStyle::Rotary, parameters, 7);
     MakeSlider(EQ_GainSlider, juce::Slider::SliderStyle::Rotary, parameters, 8);
-    MakeComboBox(FilterTypeComboBox, parameters, 9);
-    addAndMakeVisible(&bandwidthLabel);
-    
+    MakeComboBox(FilterTypeComboBox, parameters, 9, 0);
+    addAndMakeVisible(bandwidthLabel);
+}
+
+void GadoGadoFXAudioProcessorEditor::main_PitchShift()
+{
+    const juce::Array<juce::AudioProcessorParameter*> parameters = audioProcessor.getParameters();
+    MakeSlider(PS_Shift, juce::Slider::SliderStyle::Rotary, parameters, 11);
+    MakeComboBox(PS_FFTSize, parameters, 12,1);
+    MakeComboBox(PS_HopSize, parameters, 13,2);
+    MakeComboBox(PS_WindowType, parameters, 14,3);
 }
 
 //----------------------------------------end dari main effect------------------------------------------------------
@@ -55,6 +64,8 @@ void GadoGadoFXAudioProcessorEditor::On_Off_Button() {
     MakeToggleButton(toselGainControl, parameters, 4);
     MakeToggleButton(toselDelay, parameters, 5);
     MakeToggleButton(toselEQ, parameters, 10);
+    MakeToggleButton(toselPS, parameters, 15);
+    toselPS.setRadioGroupId(PemilihMode);
     toselEQ.setRadioGroupId(PemilihMode);
     toselGainControl.setRadioGroupId(PemilihMode);
     toselDelay.setRadioGroupId(PemilihMode);
@@ -68,8 +79,9 @@ void GadoGadoFXAudioProcessorEditor::MakeSlider(juce::Slider& slider, const juce
     const juce::AudioProcessorParameterWithID* parameter = dynamic_cast<juce::AudioProcessorParameterWithID*> (parameters[no_parameter]);
     SliderAttachment* aSliderAttachment;
     sliderAttachments.add(aSliderAttachment = new SliderAttachment(audioProcessor.parameters.valueTreeState, parameter->paramID, slider));
+    slider.setTextValueSuffix(parameter->label);
     slider.setSliderStyle(sliderstyle);
-    slider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 80, 25);
+    slider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 125, 20);
     addAndMakeVisible(slider);
 
     juce::Label* aLabel;
@@ -96,7 +108,7 @@ void GadoGadoFXAudioProcessorEditor::MakeToggleButton(juce::ToggleButton& toggle
 }
 
 
-void GadoGadoFXAudioProcessorEditor::MakeComboBox(juce::ComboBox& combobox, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter)
+void GadoGadoFXAudioProcessorEditor::MakeComboBox(juce::ComboBox& combobox, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter, int no_combobox)
 {
 
     const juce::AudioProcessorParameterWithID* parameter = dynamic_cast<juce::AudioProcessorParameterWithID*> (parameters[no_parameter]);
@@ -104,7 +116,7 @@ void GadoGadoFXAudioProcessorEditor::MakeComboBox(juce::ComboBox& combobox, cons
     comboBoxAttachments.add(aComboBoxAttachment = new ComboBoxAttachment(audioProcessor.parameters.valueTreeState, parameter->paramID, combobox));  
     combobox.setEditableText(false);
     combobox.setJustificationType(juce::Justification::left);
-    combobox.addItemList(audioProcessor.parameters.comboBoxItemLists[0], 1);
+    combobox.addItemList(audioProcessor.parameters.comboBoxItemLists[no_combobox], 1);
     combobox.setSelectedId(1, true);
     juce::Label* aLabel;
     labels.add(aLabel = new juce::Label(parameter->name, parameter->name));
@@ -113,7 +125,7 @@ void GadoGadoFXAudioProcessorEditor::MakeComboBox(juce::ComboBox& combobox, cons
 
     addAndMakeVisible(combobox);
     addAndMakeVisible(aLabel);
-    addAndMakeVisible(bandwidthLabel);
+    
 }
 
 
@@ -126,29 +138,34 @@ void GadoGadoFXAudioProcessorEditor::MakeComboBox(juce::ComboBox& combobox, cons
 void GadoGadoFXAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.setFont(16.0f);
-    g.fillAll(juce::Colours::black);
-    g.setColour(juce::Colours::white);
-    g.drawText("dB", 0, 165, 150, 20, juce::Justification::centred, true); 
+    g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+  //  g.drawText("dB", 0, 165, 150, 20, juce::Justification::centred, true); 
 }
 
 void GadoGadoFXAudioProcessorEditor::resized()
 {
 
     gainSlider.setBounds(20, 50, 115, 115);
-    toselGainControl.setBounds(50, 0, 20, 20);
+    toselGainControl.setBounds(50, 0, 25, 20);
 
    DelayTimeSlider.setBounds(155, 50, 80, 80);
     FeedbackSlider.setBounds(275, 50, 80, 80);
     MixSlider.setBounds(395, 50, 80, 80);
-    toselDelay.setBounds(315, 0, 20, 20);    
+    toselDelay.setBounds(315, 0, 25, 20);    
 
     FrequencySlider.setBounds(20, 250, 80,80);
     QFactorSlider.setBounds(155, 250, 80, 80);
     EQ_GainSlider.setBounds(275, 250, 80, 80);
     FilterTypeComboBox.setBounds(100, 400, 250, 30);
 
-    bandwidthLabel.setBounds(200, 300, 100, 20);
-    toselEQ.setBounds(200, 450, 20, 20);
+    bandwidthLabel.setBounds(250, 370, 250, 20);
+    toselEQ.setBounds(200, 370, 25, 20);
+
+    PS_Shift.setBounds(600, 50, 110, 80);
+    PS_FFTSize.setBounds(600,150,250,30);
+    PS_HopSize.setBounds(600, 250 , 250, 30);
+    PS_WindowType.setBounds(600, 300, 250, 30);
+    toselPS.setBounds(600, 400, 80,20);
 }
 
 
