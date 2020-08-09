@@ -9,6 +9,25 @@
 class GadoGadoFXAudioProcessor  : public juce::AudioProcessor
 {
 public:
+    enum filterTypeIndex {
+        filterTypeLowPass = 0,
+        filterTypeHighPass,
+        filterTypeLowShelf,
+        filterTypeHighShelf,
+        filterTypeBandPass,
+        filterTypeBandStop,
+        filterTypePeakingNotch,
+    };
+    juce::StringArray filterTypeItemsUI = {
+       "Low-pass",
+       "High-pass",
+       "Low-shelf",
+       "High-shelf",
+       "Band-pass",
+       "Band-stop",
+       "Peaking/Notch"
+    };
+
     //==============================================================================
     GadoGadoFXAudioProcessor();
     ~GadoGadoFXAudioProcessor() override;
@@ -51,47 +70,6 @@ public:
     int delayBufferSamples;
     int delayBufferChannels;
     int delayWritePosition;
-
-
-    PluginParametersManager parameters;
-
-    PluginParameterLinSlider paramDelayTime;
-    PluginParameterLinSlider paramFeedback;
-    PluginParameterLinSlider paramMix;
-    PluginParameterLinSlider paramGainControl;
-
-    PluginParameterToggle paramToggleGainControl;
-    PluginParameterToggle paramToggleDelay;
-    //efek delay
-
-    //=======================================================
-    PluginParameterLogSlider paramFrequency;
-    PluginParameterLinSlider paramQfactor;
-    PluginParameterLinSlider paramGain;
-    PluginParameterComboBox paramFilterType;
-    PluginParameterComboBox testing;
-
-  
- const juce::StringArray filterTypeItemsUI = {
-        "Low-pass",
-        "High-pass",
-        "Low-shelf",
-        "High-shelf",
-        "Band-pass",
-        "Band-stop",
-        "Peaking/Notch"
-    };
-
-    enum filterTypeIndex {
-        filterTypeLowPass = 0,
-        filterTypeHighPass,
-        filterTypeLowShelf,
-        filterTypeHighShelf,
-        filterTypeBandPass,
-        filterTypeBandStop,
-        filterTypePeakingNotch,
-    };
-
     //======================================
 
     class Filter : public juce::IIRFilter
@@ -182,6 +160,24 @@ public:
     };
     juce::OwnedArray<Filter> filters;
     void updateFilters();
+
+    PluginParametersManager parameters;
+
+    PluginParameterLinSlider paramDelayTime;
+    PluginParameterLinSlider paramFeedback;
+    PluginParameterLinSlider paramMix;
+    PluginParameterLinSlider paramGainControl;
+
+    PluginParameterToggle paramToggleGainControl;
+    PluginParameterToggle paramToggleDelay;
+    //efek delay
+
+    //=======================================================
+    PluginParameterLogSlider paramFrequency;
+    PluginParameterLinSlider paramQfactor;
+    PluginParameterLinSlider paramGain;
+    PluginParameterComboBox paramFilterType;
+    PluginParameterToggle paramToggleEQ;
 
 private:
     void DelayMode(juce::AudioBuffer<float>& buffer);
