@@ -22,6 +22,7 @@ public:
 
 
 private:
+    //======================================= all about parameters =========================================
     GadoGadoFXAudioProcessor& audioProcessor;
 
     juce::OwnedArray<juce::Label> labels;
@@ -37,44 +38,41 @@ private:
     juce::OwnedArray<ButtonAttachment> toggleButtonAttachments;
     juce::OwnedArray<ComboBoxAttachment> comboBoxAttachments;
 
+  //======================================= GUI Components =======================================================
+    juce::Slider G_GainSlider; 
+    juce::ToggleButton G_ToselGainControl;
 
+    juce::Slider D_DelayTimeSlider; 
+    juce::Slider D_FeedbackSlider; 
+    juce::Slider D_MixSlider; 
+    juce::ToggleButton D_ToselDelayControl;
 
-    
-    juce::Slider gainSlider; 
-    juce::ToggleButton toselGainControl;
-    juce::Label label_gain;
-
-    juce::Slider DelayTimeSlider; 
-    juce::Slider FeedbackSlider; 
-    juce::Slider MixSlider; 
-    juce::ToggleButton toselDelay;
-    juce::ToggleButton toselEQ;
-
-    juce::Slider FrequencySlider;
-    juce::Slider QFactorSlider;
+    juce::Slider EQ_FrequencySlider;
+    juce::Slider EQ_QFactorSlider;
     juce::Slider EQ_GainSlider;
-    juce::ComboBox FilterTypeComboBox;
+    juce::ComboBox EQ_FilterTypeComboBox;
+    juce::ToggleButton EQ_ToselEQ;
 
     juce::Slider PS_Shift;
     juce::ComboBox PS_FFTSize;
     juce::ComboBox PS_HopSize;
     juce::ComboBox PS_WindowType;
-    juce::ToggleButton toselPS;
-
-    juce::Label bandwidthLabel;
+    juce::Label PS_BandwidthLabel;
+    juce::ToggleButton PS_ToselPS;
     
+    //====================================Functions========================================================
     void timerCallback() override;
-    void On_Off_Button();
-    void main_GainControl();
-    void initScreen();
-    void main_Delay();
-    void main_ParameterEQ();
+    void updateUIcomponents();
+
     void MakeToggleButton(juce::ToggleButton& togglebutton, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter);
     void MakeSlider(juce::Slider& slider, const juce::Slider::SliderStyle& sliderstyle, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter);
-    void MakeComboBox(juce::ComboBox &combobox, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter,int no_combobox);
-    void updateUIcomponents();
-    void main_PitchShift();
-   
+    void MakeComboBox(juce::ComboBox &combobox, const juce::Array<juce::AudioProcessorParameter*> parameters, int no_parameter,int no_combobox, int default_value);
+    
+    void initScreen();
+    void main_GainControl(const juce::Array<juce::AudioProcessorParameter*> parameters_saya);
+    void main_Delay(const juce::Array<juce::AudioProcessorParameter*> parameters_saya);
+    void main_PitchShiftMode(const juce::Array<juce::AudioProcessorParameter*> parameters_saya);
+    void main_ParameterEQ(const juce::Array<juce::AudioProcessorParameter*> parameters_saya);
 
     //=============================================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GadoGadoFXAudioProcessorEditor)

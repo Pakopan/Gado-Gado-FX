@@ -3,9 +3,8 @@
 #include <cmath>
 #include <JuceHeader.h>
 #include "PluginParameter.h"
-//==============================================================================
-/**
-*/
+
+
 class GadoGadoFXAudioProcessor  : public juce::AudioProcessor
 {
 public:
@@ -53,6 +52,11 @@ public:
     };
 
     //======================================
+    enum hopSizeIndex {
+        hopSize2 = 0,
+        hopSize4,
+        hopSize8,
+    };
 
     juce::StringArray hopSizeItemsUI = {
         "1/2 Window",
@@ -60,24 +64,17 @@ public:
         "1/8 Window",
     };
 
-    enum hopSizeIndex {
-        hopSize2 = 0,
-        hopSize4,
-        hopSize8,
-    };
-
     //======================================
+    enum windowTypeIndex {
+        windowTypeBartlett = 0,
+        windowTypeHann,
+        windowTypeHamming,
+    };
 
     juce::StringArray windowTypeItemsUI = {
         "Bartlett",
         "Hann",
         "Hamming",
-    };
-
-    enum windowTypeIndex {
-        windowTypeBartlett = 0,
-        windowTypeHann,
-        windowTypeHamming,
     };
 
 
@@ -213,8 +210,7 @@ public:
     };
     juce::OwnedArray<Filter> filters;
     void updateFilters();
-    //======================================
-   //======================================
+    //=======================================
 
     void updateFftSize();
     void updateHopSize();
@@ -289,7 +285,7 @@ private:
     void DelayMode(juce::AudioBuffer<float>& buffer);
     void GainControlMode(juce::AudioBuffer<float>& buffer);
     void ParameterEQMode(juce::AudioBuffer<float>& buffer);
-    void PitchShift(juce::AudioBuffer<float>& buffer);
+    void PitchShiftMode(juce::AudioBuffer<float>& buffer);
     void DefaultMode (juce::AudioBuffer<float>& buffer);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GadoGadoFXAudioProcessor)
