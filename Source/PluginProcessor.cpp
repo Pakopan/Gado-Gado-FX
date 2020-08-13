@@ -279,7 +279,7 @@ void GadoGadoFXAudioProcessor::DefaultMode(juce::AudioBuffer<float>& buffer)
 
 void GadoGadoFXAudioProcessor::GainControlMode(juce::AudioBuffer<float>& buffer)
 {
-    if ((bool)paramToggleGainControl.getNextValue() == 1) {
+    if (paramToggleGainControl.getNextValue()) {
         juce::ScopedNoDenormals noDenormals;
         auto totalNumInputChannels = getTotalNumInputChannels();
         auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -287,8 +287,7 @@ void GadoGadoFXAudioProcessor::GainControlMode(juce::AudioBuffer<float>& buffer)
         float gainValue = pow(10.0f, float(paramGainControl.getNextValue()) / 20.0f);
 
         for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-            buffer.clear(i, 0, buffer.getNumSamples());
-
+            buffer.clear(i, 0, buffer.getNumSamples());                      
         for (int channel = 0; channel < totalNumInputChannels; ++channel)
         {
             auto* channelData = buffer.getWritePointer(channel);
@@ -302,7 +301,7 @@ void GadoGadoFXAudioProcessor::GainControlMode(juce::AudioBuffer<float>& buffer)
 }
 
 void GadoGadoFXAudioProcessor::DelayMode(juce::AudioBuffer<float>& buffer) {
-    if ((bool)paramToggleDelay.getNextValue() == 1)
+    if (paramToggleDelay.getNextValue())
     {
         juce::ScopedNoDenormals noDenormals;
 
@@ -358,7 +357,7 @@ void GadoGadoFXAudioProcessor::DelayMode(juce::AudioBuffer<float>& buffer) {
 
 void GadoGadoFXAudioProcessor::ParameterEQMode(juce::AudioBuffer<float>& buffer)
 {
-    if ((bool)paramToggleEQ.getNextValue() == 1)
+    if (paramToggleEQ.getNextValue())
     {
         juce::ScopedNoDenormals noDenormals;
 
@@ -382,7 +381,7 @@ void GadoGadoFXAudioProcessor::ParameterEQMode(juce::AudioBuffer<float>& buffer)
 
 void  GadoGadoFXAudioProcessor::PitchShiftMode(juce::AudioBuffer<float>& buffer)
 {
-    if ((bool)paramTogglePS.getNextValue() == 1)
+    if (paramTogglePS.getNextValue())
     {
         const juce::ScopedLock sl(lock);
 
@@ -392,7 +391,7 @@ void  GadoGadoFXAudioProcessor::PitchShiftMode(juce::AudioBuffer<float>& buffer)
         const int numOutputChannels = getTotalNumOutputChannels();
         const int numSamples = buffer.getNumSamples();
 
-        //======================================
+        //================================================================   
 
         int currentInputBufferWritePosition;
         int currentOutputBufferWritePosition;
@@ -400,82 +399,89 @@ void  GadoGadoFXAudioProcessor::PitchShiftMode(juce::AudioBuffer<float>& buffer)
         int currentSamplesSinceLastFFT;
 
         float shift = paramShift.getNextValue();
-        float ratio = roundf(shift * (float)hopSize) / (float)hopSize;
-        int resampledLength = floorf((float)fftSize / ratio);
-        juce::HeapBlock<float> resampledOutput(resampledLength, true);
-        juce::HeapBlock<float> synthesisWindow(resampledLength, true);
-        updateWindow(synthesisWindow, resampledLength);
+        float ratio = roundf(shift * (float)hopSize) / (float)hopSize; //rasio hop size antara frekuensi output(yang diinginkan) dengan frekuensi input/asli
+        int resampledLength = floorf((float)fftSize / ratio); //panjang sampel setelah dishift frekuensinya
+        juce::HeapBlock<float> resampledOutput(resampledLength, true); //buffer untuk menampung resample
+        juce::HeapBlock<float> synthesisWindow(resampledLength, true); //buffer untuk menampung fungsi window sintesis
+        updateWindow(synthesisWindow, resampledLength); // digunakan untuk interpolasi linier paling akhir
 
         for (int channel = 0; channel < numInputChannels; ++channel) {
             float* channelData = buffer.getWritePointer(channel);
 
-            currentInputBufferWritePosition = inputBufferWritePosition;
+            currentInputBufferWritePosition = inputBufferWritePosition;      
             currentOutputBufferWritePosition = outputBufferWritePosition;
             currentOutputBufferReadPosition = outputBufferReadPosition;
             currentSamplesSinceLastFFT = samplesSinceLastFFT;
 
-            for (int sample = 0; sample < numSamples; ++sample) {
+            for (int sample = 0; sample < numSamples; ++sample) { //lakukan sampling dulu tiap sampel per channel
 
-                //======================================
+                //===========================================
 
                 const float in = channelData[sample];
                 channelData[sample] = outputBuffer.getSample(channel, currentOutputBufferReadPosition);
 
-                //======================================
+                //===========================================
 
-                outputBuffer.setSample(channel, currentOutputBufferReadPosition, 0.0f);
+                outputBuffer.setSample(channel, currentOutputBufferReadPosition, 0.0f); // kosongkan output buffer
                 if (++currentOutputBufferReadPosition >= outputBufferLength)
                     currentOutputBufferReadPosition = 0;
 
                 //======================================
 
-                inputBuffer.setSample(channel, currentInputBufferWritePosition, in);
+                inputBuffer.setSample(channel, currentInputBufferWritePosition, in); // isi output buffer
                 if (++currentInputBufferWritePosition >= inputBufferLength)
                     currentInputBufferWritePosition = 0;
 
                 //======================================
 
-                if (++currentSamplesSinceLastFFT >= hopSize) {
+                if (++currentSamplesSinceLastFFT >= hopSize) { //jika sampel untuk fft per hop size sudah cukup
+                    // dengan kata lain hasil pitch shifting dikeluarkan per hop size
                     currentSamplesSinceLastFFT = 0;
 
-                    //======================================
-
+                    //================== Tiap hop size di
+                    // digunaknan nilai N=M, dimana N meerupakan jumlah sampel windowing, dan M merupakan bagian fft
+                    // nilai bisa M>=N ========================================
                     int inputBufferIndex = currentInputBufferWritePosition;
-                    for (int index = 0; index < fftSize; ++index) {
-                        fftTimeDomain[index].real(sqrtf(fftWindow[index]) * inputBuffer.getSample(channel, inputBufferIndex));
-                        fftTimeDomain[index].imag(0.0f);
+                    for (int index = 0; index < fftSize; ++index) { 
+                        fftTimeDomain[index].real(sqrtf(fftWindow[index]) * inputBuffer.getSample(channel, inputBufferIndex)); // windowing -> masukkan ke variabel kompleks time domain
+                        fftTimeDomain[index].imag(0.0f); // time domain -> j = 0
 
                         if (++inputBufferIndex >= inputBufferLength)
-                            inputBufferIndex = 0;
+                            inputBufferIndex = 0; //
+
+                    // inisialisasi data audio time domain yang sudah diwindow.
                     }
 
                     //======================================
 
-                    fft->perform(fftTimeDomain, fftFrequencyDomain, false);
+                    fft->perform(fftTimeDomain, fftFrequencyDomain, false); // lakukan fft ke hasil windowing input time domain
 
-                    if (paramShift.isSmoothing())
-                        needToResetPhases = true;
-                    if (shift == paramShift.getTargetValue() && needToResetPhases) {
+                    if (paramShift.isSmoothing()) needToResetPhases = true;
+                    if (shift == paramShift.getTargetValue() && needToResetPhases) 
+                    {
                         inputPhase.clear();
                         outputPhase.clear();
                         needToResetPhases = false;
                     }
 
                     for (int index = 0; index < fftSize; ++index) {
-                        float magnitude = abs(fftFrequencyDomain[index]);
-                        float phase = arg(fftFrequencyDomain[index]);
+                        float magnitude = abs(fftFrequencyDomain[index]); // cari magnitude tiap komponen hasil fft
+                        float phase = arg(fftFrequencyDomain[index]); // cari fase tiap komponen hasil fft
 
                         float phaseDeviation = phase - inputPhase.getSample(channel, index) - omega[index] * (float)hopSize;
                         float deltaPhi = omega[index] * hopSize + princArg(phaseDeviation);
                         float newPhase = princArg(outputPhase.getSample(channel, index) + deltaPhi * ratio);
 
                         inputPhase.setSample(channel, index, phase);
-                        outputPhase.setSample(channel, index, newPhase);
+                        outputPhase.setSample(channel, index, newPhase); //set fase yg sudah digeser ke buffer outputPhase
                         fftFrequencyDomain[index] = std::polar(magnitude, newPhase);
                     }
 
-                    fft->perform(fftFrequencyDomain, fftTimeDomain, true);
+                    fft->perform(fftFrequencyDomain, fftTimeDomain, true); // inverse fft untuk kembali ke time domain
+                       
 
+                    //===========================================================================================================
+                    // interpolasi linear untuk membuat konstan waktu audio
                     for (int index = 0; index < resampledLength; ++index) {
                         float x = (float)index * (float)fftSize / (float)resampledLength;
                         int ix = (int)floorf(x);
@@ -487,26 +493,18 @@ void  GadoGadoFXAudioProcessor::PitchShiftMode(juce::AudioBuffer<float>& buffer)
                         resampledOutput[index] *= sqrtf(synthesisWindow[index]);
                     }
 
-                    //======================================
-
                     int outputBufferIndex = currentOutputBufferWritePosition;
                     for (int index = 0; index < resampledLength; ++index) {
                         float out = outputBuffer.getSample(channel, outputBufferIndex);
                         out += resampledOutput[index] * windowScaleFactor;
                         outputBuffer.setSample(channel, outputBufferIndex, out);
 
-                        if (++outputBufferIndex >= outputBufferLength)
-                            outputBufferIndex = 0;
+                        if (++outputBufferIndex >= outputBufferLength) outputBufferIndex = 0;
                     }
-
-                    //======================================
-
                     currentOutputBufferWritePosition += hopSize;
                     if (currentOutputBufferWritePosition >= outputBufferLength)
                         currentOutputBufferWritePosition = 0;
                 }
-
-                //======================================
             }
         }
 
@@ -527,17 +525,17 @@ void  GadoGadoFXAudioProcessor::PitchShiftMode(juce::AudioBuffer<float>& buffer)
 //======================================== additional self built functions ===================
 void  GadoGadoFXAudioProcessor::updateFftSize()
 {
-    fftSize = (int)paramFftSize.getTargetValue();
-    fft = std::make_unique<juce::dsp::FFT>(log2(fftSize));
-
+    fftSize = (int)paramFftSize.getTargetValue(); //baca nilai di combo box fftsize
+    fft = std::make_unique<juce::dsp::FFT>(log2(fftSize)); // -> fftsize=2^x
+    
     inputBufferLength = fftSize;
     inputBufferWritePosition = 0;
     inputBuffer.clear();
     inputBuffer.setSize(getTotalNumInputChannels(), inputBufferLength);
 
-    float maxRatio = powf(2.0f, paramShift.minValue / 12.0f);
-    outputBufferLength = (int)floorf((float)fftSize / maxRatio);
-    outputBufferWritePosition = 0;
+    float maxRatio = powf(2.0f, paramShift.minValue / 12.0f); // rasio panjang sinyal asli : sinyal yg distretch
+    outputBufferLength = (int)floorf((float)fftSize / maxRatio); // menentukan panjang max buffer yg diperlukan untuk menampung calon output
+    outputBufferWritePosition = 0; 
     outputBufferReadPosition = 0;
     outputBuffer.clear();
     outputBuffer.setSize(getTotalNumInputChannels(), outputBufferLength);
@@ -568,16 +566,18 @@ void  GadoGadoFXAudioProcessor::updateFftSize()
 
 void  GadoGadoFXAudioProcessor::updateHopSize()
 {
-    overlap = (int)paramHopSize.getTargetValue();
-    if (overlap != 0) {
-        hopSize = fftSize / overlap;
-        outputBufferWritePosition = hopSize % outputBufferLength;
+    overlap = (int)paramHopSize.getTargetValue(); //faktor hop size = baca nilai di combo box hop size
+    if (overlap != 0) 
+    {
+        hopSize = fftSize / overlap; //menentukan jmlh komponen sinyal yg bersinggungan dengan sample yg tlh diwindow
+        outputBufferWritePosition = hopSize % outputBufferLength; // still confused about how this statement works
     }
 }
 
 void  GadoGadoFXAudioProcessor::updateAnalysisWindow()
 {
     updateWindow(fftWindow, fftSize);
+    //============================ Nothing special ==================================//
 }
 
 void  GadoGadoFXAudioProcessor::updateWindow(const juce::HeapBlock<float>& window, const int windowLength)
@@ -585,39 +585,40 @@ void  GadoGadoFXAudioProcessor::updateWindow(const juce::HeapBlock<float>& windo
     switch ((int)paramWindowType.getTargetValue()) {
     case windowTypeBartlett: {
         for (int sample = 0; sample < windowLength; ++sample)
-            window[sample] = 1.0f - fabs(2.0f * (float)sample / (float)(windowLength - 1) - 1.0f);
+            window[sample] = 1.0f - fabs(2.0f * (float)sample / (float)(windowLength - 1) - 1.0f); //lihat buku joshua untuk rumus
         break;
     }
     case windowTypeHann: {
         for (int sample = 0; sample < windowLength; ++sample)
-            window[sample] = 0.5f - 0.5f * cosf(2.0f * M_PI * (float)sample / (float)(windowLength - 1));
+            window[sample] = 0.5f - 0.5f * cosf(2.0f * M_PI * (float)sample / (float)(windowLength - 1)); //lihat buku joshua untuk rumus
         break;
     }
     case windowTypeHamming: {
         for (int sample = 0; sample < windowLength; ++sample)
-            window[sample] = 0.54f - 0.46f * cosf(2.0f * M_PI * (float)sample / (float)(windowLength - 1));
+            window[sample] = 0.54f - 0.46f * cosf(2.0f * M_PI * (float)sample / (float)(windowLength - 1)); //lihat buku joshua rumus
         break;
     }
+                          //========================= tambahkan tipe yang lain ==================================//
     }
+    //============================================================= nothing special ==========================================================//
 }
 
 void  GadoGadoFXAudioProcessor::updateWindowScaleFactor()
 {
     float windowSum = 0.0f;
     for (int sample = 0; sample < fftSize; ++sample)
-        windowSum += fftWindow[sample];
+        windowSum += fftWindow[sample]; // jumlah dari semua sampel fft yang diwindowing (jadi satu window) -> tidak dipecah menjadi bbrp window
 
     windowScaleFactor = 0.0f;
     if (overlap != 0 && windowSum != 0.0f)
-        windowScaleFactor = 1.0f / (float)overlap / windowSum * (float)fftSize;
+        windowScaleFactor = 1.0f / (float)overlap / windowSum * (float)fftSize; // still dunno
 }
 
 float GadoGadoFXAudioProcessor::princArg(const float phase)
 {
-    if (phase >= 0.0f)
-        return fmod(phase + M_PI, 2.0f * M_PI) - M_PI;
-    else
-        return fmod(phase + M_PI, -2.0f * M_PI) + M_PI;
+    if (phase >= 0.0f) return fmod(phase + M_PI, 2.0f * M_PI) - M_PI;
+    else return fmod(phase + M_PI, -2.0f * M_PI) + M_PI;
+    // no clues for those 2 conditions but the others just normal equations from Zolzer's DAFX book
 }
 
 void GadoGadoFXAudioProcessor::updateFilters()
