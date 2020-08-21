@@ -1,7 +1,7 @@
 # Gado-Gado FX
 
 
-Gado-Gado FX is a VST2 plugin based on Juce C++ Framework that contains multiple audio effects like delay, pitch shift, and Filter. 
+Gado-Gado FX is a VST3 plugin based on Juce C++ Framework that contains multiple audio effects like delay, pitch shift, and Filter. 
 
 
 # Under Development Features!
