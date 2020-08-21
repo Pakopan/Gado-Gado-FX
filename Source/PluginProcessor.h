@@ -16,7 +16,6 @@ public:
         filterTypeBandPass,
         filterTypeBandStop,
         filterTypePeakingNotch,
-        SmithAngel_Resonator,
     };
     juce::StringArray filterTypeItemsUI = {
        "Low-pass",
@@ -26,7 +25,6 @@ public:
        "Band-pass",
        "Band-stop",
        "Peaking/Notch",
-       "Smith - Angel Resonator"
     };
 
     juce::StringArray fftSizeItemsUI = {
@@ -141,12 +139,6 @@ public:
             double tan_half_bw = tan(bandwidth / 2.0);
             double tan_half_wc = tan(discreteFrequency / 2.0);
             double sqrt_gain = sqrt(gain);
-
-            double BW = (discreteFrequency/2/M_PI*fs) / qFactor;
-            double b2 = exp(-2 * M_PI * BW / fs);
-            double b1 = -4 * b2 / (1 + b2) * cos(discreteFrequency);
-            double a0 = 1 - sqrt(b2);
-            double a2 = -a0;
            
             switch (filterType) {
             case filterTypeLowPass: {
@@ -210,16 +202,6 @@ public:
                     /* a0 */ sqrt_gain + tan_half_bw,
                     /* a1 */ sqrt_gain * two_cos_wc,
                     /* a2 */ sqrt_gain - tan_half_bw);
-                break;
-            }
-            case SmithAngel_Resonator: {
-                coefficients = juce::IIRCoefficients(
-                    /* b0 */ a0,
-                    /* b1 */ 1,
-                    /* b2 */ a2,
-                    /* a0 */ 1,
-                    /* a1 */ b1,
-                    /* a2 */ b2);
                 break;
             }
             }

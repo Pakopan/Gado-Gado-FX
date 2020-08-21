@@ -177,8 +177,7 @@ void GadoGadoFXAudioProcessorEditor::updateUIcomponents()
     bool filterTypeDoesNotHaveGain =
         audioProcessor.paramFilterType.getTargetValue() == audioProcessor.filterTypeLowPass ||
         audioProcessor.paramFilterType.getTargetValue() == audioProcessor.filterTypeHighPass ||
-        audioProcessor.paramFilterType.getTargetValue() == audioProcessor.filterTypeBandPass ||
-        audioProcessor.paramFilterType.getTargetValue() == audioProcessor.SmithAngel_Resonator;
+        audioProcessor.paramFilterType.getTargetValue() == audioProcessor.filterTypeBandPass;
    
     if (filterTypeDoesNotHaveQfactor) {
         EQ_QFactorSlider.setEnabled(false);
