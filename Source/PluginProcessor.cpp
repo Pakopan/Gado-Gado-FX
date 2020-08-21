@@ -17,7 +17,7 @@ GadoGadoFXAudioProcessor::GadoGadoFXAudioProcessor()
     , paramDelayTime(parameters, "Delay time", "s", 0.0f, 1.0f, 0.1f)           //0
     , paramFeedback(parameters, "Feedback", "", 0.0f, 0.9f, 0.7f)               //1
     , paramMix(parameters, "Mix", "", 0.0f, 1.0f, 1.0f)                         //2
-    , paramGainControl(parameters, "Gain", "", -40.0f, 20.0f, 0.0f)             //3
+    , paramGainControl(parameters, "Gain", "dB", -40.0f, 20.0f, 0.0f)             //3
     , paramToggleGainControl(parameters, "GAIN CONTROL ON")                     //4
     , paramToggleDelay(parameters, "DELAY CONTROL ON")                          //5
 
@@ -627,8 +627,8 @@ void GadoGadoFXAudioProcessor::updateFilters()
     double qFactor = (double)paramQfactor.getTargetValue();
     double gain = pow(10.0, (double)paramGain.getTargetValue() * 0.05);
     int type = (int)paramFilterType.getTargetValue();
-
+    double fs = getSampleRate();
     for (int i = 0; i < filters.size(); ++i)
-        filters[i]->updateCoefficients(discreteFrequency, qFactor, gain, type);
+        filters[i]->updateCoefficients(discreteFrequency, qFactor, gain, type, fs);
 
 }
