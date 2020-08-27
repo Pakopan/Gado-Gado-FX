@@ -20,6 +20,18 @@ void GadoGadoFXAudioProcessorEditor::paint(juce::Graphics& g)
 {
     g.setFont(16.0f);
     g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+    g.setColour(juce::Colours::slategrey);
+    juce::Line<float> line_1(juce::Point<float>(0, 215),
+                          juce::Point<float>(500, 215));
+    juce::Line<float> line_2(juce::Point<float>(500, 0),
+                             juce::Point<float>(500, 450));
+    g.drawLine(line_1, 2.0f);
+    g.drawLine(line_2, 2.0f);
+    juce::Image logo_imfi= juce::ImageCache::getFromMemory(BinaryData::logo_imfi_png, BinaryData::logo_imfi_pngSize);
+    juce::Image logo_gado = juce::ImageCache::getFromMemory(BinaryData::gado_png, BinaryData::gado_pngSize);
+    g.drawImageAt(logo_imfi, 560, 400);
+    g.drawImageAt(logo_gado, 560, 350);
+   
 }
 
 void GadoGadoFXAudioProcessorEditor::resized()
@@ -44,8 +56,8 @@ void GadoGadoFXAudioProcessorEditor::resized()
 
     PS_Shift.setBounds(600, 80, 250, 60);
     PS_FFTSize.setBounds(600, 180, 250, 30);
-    PS_HopSize.setBounds(600, 255, 250, 30);
-    PS_WindowType.setBounds(600, 320, 250, 30);
+    PS_HopSize.setBounds(600, 225, 250, 30);
+    PS_WindowType.setBounds(600, 270, 250, 30);
     PS_ToselPS.setBounds(763, 0, 80, 20);
 }
 
@@ -59,7 +71,7 @@ GadoGadoFXAudioProcessorEditor::~GadoGadoFXAudioProcessorEditor()
 //======================================================== start dari main effect ================================================================
 void GadoGadoFXAudioProcessorEditor::initScreen() {
 
-    setSize(900, 450);
+    setSize(880, 450);
 
 }
 
