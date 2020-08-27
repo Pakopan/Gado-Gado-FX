@@ -18,12 +18,12 @@ public:
         filterTypePeakingNotch,
     };
     juce::StringArray filterTypeItemsUI = {
-       "Low-pass",
-       "High-pass",
-       "Low-shelf",
-       "High-shelf",
-       "Band-pass",
-       "Band-stop",
+       "Low-pass ORDE 2",
+       "High-pass ORDE 2",
+       "Low-shelf ORDE 2",
+       "High-shelf ORDE 2",
+       "Band-pass ORDE 1",
+       "Band-stop ORDE 1",
        "Peaking/Notch",
     };
 
@@ -56,12 +56,14 @@ public:
         hopSize2 = 0,
         hopSize4,
         hopSize8,
+        hopSize16,
     };
 
     juce::StringArray hopSizeItemsUI = {
         "1/2 Window",
         "1/4 Window",
         "1/8 Window",
+        "1/16 Window",
     };
 
     //======================================
@@ -69,12 +71,16 @@ public:
         windowTypeBartlett = 0,
         windowTypeHann,
         windowTypeHamming,
+        windowTypeRectangular,
+        windowTypeBarthann,
     };
 
     juce::StringArray windowTypeItemsUI = {
         "Bartlett",
         "Hann",
         "Hamming",
+        "Rectangular",
+        "Barthann",
     };
 
 
@@ -136,72 +142,88 @@ public:
             jassert(fs > 0);
             double bandwidth = juce::jmin(discreteFrequency / qFactor, M_PI * 0.99);
             double two_cos_wc = -2.0 * cos(discreteFrequency);
+            double cos_x = 2.0 * cos(3.0 * M_PI / 4.0);
             double tan_half_bw = tan(bandwidth / 2.0);
             double tan_half_wc = tan(discreteFrequency / 2.0);
+            double tan_half_kuadrat = pow(tan_half_wc, 2);
             double sqrt_gain = sqrt(gain);
+
+            double b0c = tan_half_kuadrat;
+            double b1c = 2 * tan_half_kuadrat;
+            double b2c = tan_half_kuadrat;
+            double a0c = 1 + tan_half_kuadrat - (cos_x * tan_half_wc);
+            double a1c = 2 * tan_half_kuadrat - 2;
+            double a2c = 1 + tan_half_kuadrat + (cos_x * tan_half_wc);
+
+            double b0h = 1 - tan_half_wc * cos_x;
+            double b1h = -2.0;
+            double b2h = 1 + tan_half_wc * cos_x;
+            double a0h = 1 + tan_half_kuadrat - (cos_x * tan_half_wc);
+            double a1h = 2 * tan_half_kuadrat - 2;
+            double a2h = 1 + tan_half_kuadrat + (cos_x * tan_half_wc);
+
+            double b0ls = 1 - tan_half_wc * cos_x + gain * tan_half_kuadrat;
+            double b1ls = 2 * gain * tan_half_kuadrat - 2.0;
+            double b2ls = 1 + tan_half_wc * cos_x + gain * tan_half_kuadrat;
+            double a0ls = 1 + tan_half_kuadrat - (cos_x * tan_half_wc);
+            double a1ls = 2 * tan_half_kuadrat - 2;
+            double a2ls = 1 + tan_half_kuadrat + (cos_x * tan_half_wc);
+
+            double b0hs = gain - gain * tan_half_wc * cos_x + tan_half_kuadrat;
+            double b1hs = 2 * tan_half_kuadrat - 2.0 * gain;
+            double b2hs = gain + gain * tan_half_wc * cos_x + tan_half_kuadrat;
+            double a0hs = 1 + tan_half_kuadrat - (cos_x * tan_half_wc);
+            double a1hs = 2 * tan_half_kuadrat - 2;
+            double a2hs = 1 + tan_half_kuadrat + (cos_x * tan_half_wc);
+
+            double b0bp = tan_half_bw;
+            double b1bp = 0.0;
+            double b2bp = -tan_half_bw;
+            double a0bp = 1.0 + tan_half_bw;
+            double a1bp = two_cos_wc;
+            double a2bp = 1.0 - tan_half_bw;
+
+            double b0bs = 1.0;
+            double b1bs = two_cos_wc;
+            double b2bs = 1.0;
+            double a0bs = 1.0 + tan_half_bw;
+            double a1bs = two_cos_wc;
+            double a2bs = 1.0 - tan_half_bw;
+
+            double b0n = sqrt_gain + gain * tan_half_bw;
+            double b1n = sqrt_gain * two_cos_wc;
+            double b2n = sqrt_gain - gain * tan_half_bw;
+            double a0n = sqrt_gain + tan_half_bw;
+            double a1n = sqrt_gain * two_cos_wc;
+            double a2n = sqrt_gain - tan_half_bw;
            
             switch (filterType) {
             case filterTypeLowPass: {
-                coefficients = juce::IIRCoefficients(/* b0 */ tan_half_wc,
-                    /* b1 */ tan_half_wc,
-                    /* b2 */ 0.0,
-                    /* a0 */ tan_half_wc + 1.0,
-                    /* a1 */ tan_half_wc - 1.0,
-                    /* a2 */ 0.0);
+                coefficients = juce::IIRCoefficients(b0c, b1c, b2c, a0c, a1c, a2c);
                 break;
             }
             case filterTypeHighPass: {
-                coefficients = juce::IIRCoefficients(/* b0 */ 1.0,
-                    /* b1 */ -1.0,
-                    /* b2 */ 0.0,
-                    /* a0 */ tan_half_wc + 1.0,
-                    /* a1 */ tan_half_wc - 1.0,
-                    /* a2 */ 0.0);
+                coefficients = juce::IIRCoefficients(b0h, b1h, b2h, a0h, a1h, a2h);
                 break;
             }
             case filterTypeLowShelf: {
-                coefficients = juce::IIRCoefficients(/* b0 */ gain * tan_half_wc + sqrt_gain,
-                    /* b1 */ gain * tan_half_wc - sqrt_gain,
-                    /* b2 */ 0.0,
-                    /* a0 */ tan_half_wc + sqrt_gain,
-                    /* a1 */ tan_half_wc - sqrt_gain,
-                    /* a2 */ 0.0);
+                coefficients = juce::IIRCoefficients(b0ls, b1ls, b2ls, a0ls, a1ls, a2ls);
                 break;
             }
             case filterTypeHighShelf: {
-                coefficients = juce::IIRCoefficients(/* b0 */ sqrt_gain * tan_half_wc + gain,
-                    /* b1 */ sqrt_gain * tan_half_wc - gain,
-                    /* b2 */ 0.0,
-                    /* a0 */ sqrt_gain * tan_half_wc + 1.0,
-                    /* a1 */ sqrt_gain * tan_half_wc - 1.0,
-                    /* a2 */ 0.0);
+                coefficients = juce::IIRCoefficients(b0hs, b1hs, b2hs, a0hs, a1hs, a2hs);
                 break;
             }
             case filterTypeBandPass: {
-                coefficients = juce::IIRCoefficients(/* b0 */ tan_half_bw,
-                    /* b1 */ 0.0,
-                    /* b2 */ -tan_half_bw,
-                    /* a0 */ 1.0 + tan_half_bw,
-                    /* a1 */ two_cos_wc,
-                    /* a2 */ 1.0 - tan_half_bw);
+                coefficients = juce::IIRCoefficients(b0bp, b1bp, b2bp, a0bp, a1bp, a2bp);
                 break;
             }
             case filterTypeBandStop: {
-                coefficients = juce::IIRCoefficients(/* b0 */ 1.0,
-                    /* b1 */ two_cos_wc,
-                    /* b2 */ 1.0,
-                    /* a0 */ 1.0 + tan_half_bw,
-                    /* a1 */ two_cos_wc,
-                    /* a2 */ 1.0 - tan_half_bw);
+                coefficients = juce::IIRCoefficients(b0bs, b1bs, b2bs, a0bs, a1bs, a2bs);
                 break;
             }
             case filterTypePeakingNotch: {
-                coefficients = juce::IIRCoefficients(/* b0 */ sqrt_gain + gain * tan_half_bw,
-                    /* b1 */ sqrt_gain * two_cos_wc,
-                    /* b2 */ sqrt_gain - gain * tan_half_bw,
-                    /* a0 */ sqrt_gain + tan_half_bw,
-                    /* a1 */ sqrt_gain * two_cos_wc,
-                    /* a2 */ sqrt_gain - tan_half_bw);
+                coefficients = juce::IIRCoefficients(b0n, b1n, b2n, a0n, a1n, a2n);
                 break;
             }
             }

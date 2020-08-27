@@ -608,6 +608,16 @@ void  GadoGadoFXAudioProcessor::updateWindow(const juce::HeapBlock<float>& windo
             window[sample] = 0.54f - 0.46f * cosf(2.0f * M_PI * (float)sample / (float)(windowLength - 1)); //lihat buku joshua rumus
         break;
     }
+    case windowTypeRectangular: {
+        for (int sample = 0; sample < windowLength; ++sample)
+            window[sample] = 1.0f;
+        break;
+    }
+    case windowTypeBarthann: {
+        for (int sample = 0; sample < windowLength; ++sample)
+            window[sample] = 0.62f - 0.48f * abs(((float)sample / (float)windowLength) - 0.5f) + 0.38f * cosf(2.0f * M_PI * (((float)sample / (float)windowLength) - 0.5f));
+        break;
+    }
                           //========================= tambahkan tipe yang lain ==================================//
     }
     //============================================================= nothing special ==========================================================//
