@@ -42,6 +42,7 @@ private:
     juce::Slider G_GainSlider; 
     juce::ToggleButton G_ToselGainControl;
 
+    juce::Slider D_BalanceSlider;
     juce::Slider D_DelayTimeSlider; 
     juce::Slider D_FeedbackSlider; 
     juce::Slider D_MixSlider; 

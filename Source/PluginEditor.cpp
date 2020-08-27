@@ -25,27 +25,28 @@ void GadoGadoFXAudioProcessorEditor::paint(juce::Graphics& g)
 void GadoGadoFXAudioProcessorEditor::resized()
 {
 
-    G_GainSlider.setBounds(20, 50, 115, 115);
-    G_ToselGainControl.setBounds(120, 0, 25, 20);
+    G_GainSlider.setBounds(30, 75, 125, 125);
+    G_ToselGainControl.setBounds(145, 0, 25, 20);
 
-    D_DelayTimeSlider.setBounds(155, 50, 80, 80);
-    D_FeedbackSlider.setBounds(275, 50, 80, 80);
-    D_MixSlider.setBounds(395, 50, 80, 80);
-    D_ToselDelayControl.setBounds(315, 0, 25, 20);
+    D_BalanceSlider.setBounds(200, 50, 120, 50);
+    D_DelayTimeSlider.setBounds(360, 50, 120, 50);
+    D_FeedbackSlider.setBounds(200, 150, 120, 50);
+    D_MixSlider.setBounds(360, 150, 120, 50);
+    D_ToselDelayControl.setBounds(400, 0, 25, 20);
 
-    EQ_FrequencySlider.setBounds(20, 250, 80, 80);
-    EQ_QFactorSlider.setBounds(155, 250, 80, 80);
-    EQ_GainSlider.setBounds(275, 250, 80, 80);
-    EQ_FilterTypeComboBox.setBounds(100, 400, 250, 30);
+    EQ_FrequencySlider.setBounds(30, 280, 97  , 97);
+    EQ_QFactorSlider.setBounds(205, 280, 97, 97);
+    EQ_GainSlider.setBounds(380, 280, 97, 97);
+    EQ_FilterTypeComboBox.setBounds(90, 400, 250, 30);
 
-    PS_BandwidthLabel.setBounds(250, 370, 250, 20);
-    EQ_ToselEQ.setBounds(200, 370, 25, 20);
+    PS_BandwidthLabel.setBounds(345, 405, 250, 20);
+    EQ_ToselEQ.setBounds(300, 225, 25, 20);
 
-    PS_Shift.setBounds(600, 50, 110, 80);
-    PS_FFTSize.setBounds(600, 150, 250, 30);
-    PS_HopSize.setBounds(600, 250, 250, 30);
-    PS_WindowType.setBounds(600, 300, 250, 30);
-    PS_ToselPS.setBounds(600, 400, 80, 20);
+    PS_Shift.setBounds(600, 80, 250, 60);
+    PS_FFTSize.setBounds(600, 180, 250, 30);
+    PS_HopSize.setBounds(600, 255, 250, 30);
+    PS_WindowType.setBounds(600, 320, 250, 30);
+    PS_ToselPS.setBounds(763, 0, 80, 20);
 }
 
 GadoGadoFXAudioProcessorEditor::~GadoGadoFXAudioProcessorEditor()
@@ -63,37 +64,38 @@ void GadoGadoFXAudioProcessorEditor::initScreen() {
 }
 
 void GadoGadoFXAudioProcessorEditor::main_Delay(const juce::Array<juce::AudioProcessorParameter*> parameters_saya) {
-    MakeSlider(D_DelayTimeSlider, juce::Slider::SliderStyle::Rotary, parameters_saya, 0);
-    MakeSlider(D_FeedbackSlider, juce::Slider::SliderStyle::Rotary, parameters_saya, 1);
-    MakeSlider(D_MixSlider, juce::Slider::SliderStyle::Rotary, parameters_saya, 2);
+    MakeSlider(D_BalanceSlider, juce::Slider::SliderStyle::LinearHorizontal, parameters_saya, 0);
+    MakeSlider(D_DelayTimeSlider, juce::Slider::SliderStyle::LinearHorizontal, parameters_saya, 1);
+    MakeSlider(D_FeedbackSlider, juce::Slider::SliderStyle::LinearHorizontal, parameters_saya, 2);
+    MakeSlider(D_MixSlider, juce::Slider::SliderStyle::LinearHorizontal, parameters_saya, 3);
+    MakeToggleButton(D_ToselDelayControl, parameters_saya, 4);
     D_ToselDelayControl.setRadioGroupId(PemilihMode);
 }
 
 void GadoGadoFXAudioProcessorEditor::main_GainControl(const juce::Array<juce::AudioProcessorParameter*> parameters_saya) {
-    MakeSlider(G_GainSlider, juce::Slider::SliderStyle::Rotary, parameters_saya, 3);
-    MakeToggleButton(G_ToselGainControl, parameters_saya, 4);
+    MakeSlider(G_GainSlider, juce::Slider::SliderStyle::Rotary, parameters_saya, 5);
+    MakeToggleButton(G_ToselGainControl, parameters_saya, 6);
     G_ToselGainControl.setRadioGroupId(PemilihMode);
 }
 
 void GadoGadoFXAudioProcessorEditor::main_ParameterEQ(const juce::Array<juce::AudioProcessorParameter*> parameters_saya)
 {
-    MakeToggleButton(D_ToselDelayControl, parameters_saya, 5);
-    MakeSlider(EQ_FrequencySlider, juce::Slider::SliderStyle::Rotary, parameters_saya, 6);
-    MakeSlider(EQ_QFactorSlider, juce::Slider::SliderStyle::Rotary, parameters_saya, 7);
-    MakeSlider(EQ_GainSlider, juce::Slider::SliderStyle::Rotary, parameters_saya, 8);
-    MakeComboBox(EQ_FilterTypeComboBox, parameters_saya, 9, 0, audioProcessor.filterTypePeakingNotch+1);
-    MakeToggleButton(EQ_ToselEQ, parameters_saya, 10);
+    MakeSlider(EQ_FrequencySlider, juce::Slider::SliderStyle::Rotary, parameters_saya, 7);
+    MakeSlider(EQ_QFactorSlider, juce::Slider::SliderStyle::Rotary, parameters_saya, 8);
+    MakeSlider(EQ_GainSlider, juce::Slider::SliderStyle::Rotary, parameters_saya, 9);
+    MakeComboBox(EQ_FilterTypeComboBox, parameters_saya, 10, 0, audioProcessor.filterTypePeakingNotch+1);
+    MakeToggleButton(EQ_ToselEQ, parameters_saya, 11);
     EQ_ToselEQ.setRadioGroupId(PemilihMode);
     addAndMakeVisible(PS_BandwidthLabel);
 }
 
 void GadoGadoFXAudioProcessorEditor::main_PitchShiftMode(const juce::Array<juce::AudioProcessorParameter*> parameters_saya)
 {
-    MakeSlider(PS_Shift, juce::Slider::SliderStyle::Rotary, parameters_saya, 11);
-    MakeComboBox(PS_FFTSize, parameters_saya, 12, 1, audioProcessor.fftSize1024+1);
-    MakeComboBox(PS_HopSize, parameters_saya, 13, 2, audioProcessor.hopSize4+1);
-    MakeComboBox(PS_WindowType, parameters_saya, 14, 3, audioProcessor.windowTypeBartlett+1);
-    MakeToggleButton(PS_ToselPS, parameters_saya, 15);
+    MakeSlider(PS_Shift, juce::Slider::SliderStyle::LinearHorizontal, parameters_saya, 12);                                             //Typenya diuubah
+    MakeComboBox(PS_FFTSize, parameters_saya, 13, 1, audioProcessor.fftSize1024+1);
+    MakeComboBox(PS_HopSize, parameters_saya, 14, 2, audioProcessor.hopSize4+1);
+    MakeComboBox(PS_WindowType, parameters_saya, 15, 3, audioProcessor.windowTypeBartlett+1);
+    MakeToggleButton(PS_ToselPS, parameters_saya, 16);
     PS_ToselPS.setRadioGroupId(PemilihMode);
 }
 //============================================ End of main effect ========================================================

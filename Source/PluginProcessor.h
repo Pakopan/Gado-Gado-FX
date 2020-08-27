@@ -259,14 +259,16 @@ public:
     //========================================
     PluginParametersManager parameters;
 
+    PluginParameterLinSlider paramBalance;
     PluginParameterLinSlider paramDelayTime;
     PluginParameterLinSlider paramFeedback;
     PluginParameterLinSlider paramMix;
-    PluginParameterLinSlider paramGainControl;
-
-    PluginParameterToggle paramToggleGainControl;
     PluginParameterToggle paramToggleDelay;
     //efek delay
+
+    PluginParameterLinSlider paramGainControl;
+    PluginParameterToggle paramToggleGainControl;
+    //efek Gain control
 
     //=======================================================
     PluginParameterLogSlider paramFrequency;

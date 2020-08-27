@@ -14,26 +14,28 @@ GadoGadoFXAudioProcessor::GadoGadoFXAudioProcessor()
     ),
 #endif
     parameters(*this)
-    , paramDelayTime(parameters, "Delay time", "s", 0.0f, 1.0f, 0.1f)           //0
-    , paramFeedback(parameters, "Feedback", "", 0.0f, 0.9f, 0.7f)               //1
-    , paramMix(parameters, "Mix", "", 0.0f, 1.0f, 1.0f)                         //2
-    , paramGainControl(parameters, "Gain", "dB", -40.0f, 20.0f, 0.0f)             //3
-    , paramToggleGainControl(parameters, "GAIN CONTROL ON")                     //4
-    , paramToggleDelay(parameters, "DELAY CONTROL ON")                          //5
+    , paramBalance(parameters, "Balance input", "", 0.0f, 1.0f, 0.25f)          //0
+    , paramDelayTime(parameters, "Delay time", "s", 0.0f, 5.0f, 0.1f)           //1
+    , paramFeedback(parameters, "Feedback", "", 0.0f, 0.9f, 0.7f)               //2
+    , paramMix(parameters, "Mix", "", 0.0f, 1.0f, 1.0f)                         //3
+    , paramToggleDelay(parameters, "DELAY CONTROL ON")                          //4
 
-    , paramFrequency(parameters, "Frequency", "Hz", 10.0f, 20000.0f, 1500.0f,                                           //6
+    , paramGainControl(parameters, "Gain", "dB", -40.0f, 20.0f, 0.0f)           //5
+    , paramToggleGainControl(parameters, "GAIN CONTROL ON")                     //6
+
+    , paramFrequency(parameters, "Frequency", "Hz", 10.0f, 20000.0f, 1500.0f,                                           //7
         [this](float value) { paramFrequency.setCurrentAndTargetValue(value); updateFilters(); return value; })
-    , paramQfactor(parameters, "Q Factor", "", 0.1f, 20.0f, sqrt(2.0f),                                                 //7
+    , paramQfactor(parameters, "Q Factor", "", 0.1f, 20.0f, sqrt(2.0f),                                                 //8
         [this](float value) { paramQfactor.setCurrentAndTargetValue(value); updateFilters(); return value; })
-    , paramGain(parameters, "Gain P_EQ", "dB", -12.0f, 12.0f, 12.0f,                                                    //8
+    , paramGain(parameters, "Gain P_EQ", "dB", -12.0f, 12.0f, 12.0f,                                                    //9
         [this](float value) { paramGain.setCurrentAndTargetValue(value); updateFilters(); return value; })
-    , paramFilterType(parameters, "Filter type", filterTypeItemsUI, NULL ,                                              //9
+    , paramFilterType(parameters, "Filter type", filterTypeItemsUI, NULL ,                                              //10
         [this](float value) { paramFilterType.setCurrentAndTargetValue(value); updateFilters(); return value; })
-    , paramToggleEQ(parameters, "PARAMETER EQ ON")                                                                     //10
+    , paramToggleEQ(parameters, "PARAMETER EQ ON")                                                                     //11
     
-    , paramShift(parameters, "Shift", " Semitone(s)", -12.0f, 12.0f, 0.0f,                                              //11
+    , paramShift(parameters, "Shift", " Semitone(s)", -12.0f, 12.0f, 0.0f,                                              //12
         [this](float value) { return powf(2.0f, value / 12.0f); })
-    , paramFftSize(parameters, "FFT size", fftSizeItemsUI, NULL,                                                        //12
+    , paramFftSize(parameters, "FFT size", fftSizeItemsUI, NULL,                                                        //13
         [this](float value) {
             const juce::ScopedLock sl(lock);
             value = (float)(1 << ((int)value + 5));
@@ -44,7 +46,7 @@ GadoGadoFXAudioProcessor::GadoGadoFXAudioProcessor()
             updateWindowScaleFactor();
             return value;
         })
-    , paramHopSize(parameters, "Hop size", hopSizeItemsUI, NULL ,                                                      //13
+    , paramHopSize(parameters, "Hop size", hopSizeItemsUI, NULL ,                                                      //14
         [this](float value) {
             const juce::ScopedLock sl(lock);
             value = (float)(1 << ((int)value + 1));
@@ -55,7 +57,7 @@ GadoGadoFXAudioProcessor::GadoGadoFXAudioProcessor()
             updateWindowScaleFactor();
             return value;
         })
-            , paramWindowType(parameters, "Window type", windowTypeItemsUI, NULL,                                       //14
+            , paramWindowType(parameters, "Window type", windowTypeItemsUI, NULL,                                       //15
                 [this](float value) {
                     const juce::ScopedLock sl(lock);
                     paramWindowType.setCurrentAndTargetValue(value);
@@ -65,7 +67,7 @@ GadoGadoFXAudioProcessor::GadoGadoFXAudioProcessor()
                     updateWindowScaleFactor();
                     return value;
                 })
-            , paramTogglePS(parameters, "PITCH SHIFT ON")                                                               //15
+            , paramTogglePS(parameters, "PITCH SHIFT ON")                                                               //16
 {
     parameters.valueTreeState.state = juce::ValueTree(juce::Identifier(getName().removeCharacters("- ")));
 }
@@ -145,6 +147,7 @@ void GadoGadoFXAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
         paramGainControl.reset(sampleRate, smoothTime);
         paramToggleGainControl.reset(sampleRate, smoothTime);
 
+        paramBalance.reset(sampleRate, smoothTime);
         paramDelayTime.reset(sampleRate, smoothTime);
         paramFeedback.reset(sampleRate, smoothTime);
         paramMix.reset(sampleRate, smoothTime);
@@ -311,38 +314,45 @@ void GadoGadoFXAudioProcessor::DelayMode(juce::AudioBuffer<float>& buffer) {
 
         //======================================
 
+        float currentBalance = paramBalance.getNextValue();
         float currentDelayTime = paramDelayTime.getTargetValue() * (float)getSampleRate();
         float currentFeedback = paramFeedback.getNextValue();
         float currentMix = paramMix.getNextValue();
 
-        int localWritePosition;
+        int localWritePosition = delayWritePosition;
 
-        for (int channel = 0; channel < numInputChannels; ++channel) {
-            float* channelData = buffer.getWritePointer(channel);
-            float* delayData = delayBuffer.getWritePointer(channel);
-            localWritePosition = delayWritePosition;
+        float* channelDataL = buffer.getWritePointer(0);
+        float* channelDataR = buffer.getWritePointer(1);
+        float* delayDataL = delayBuffer.getWritePointer(0);
+        float* delayDataR = delayBuffer.getWritePointer(1);
 
-            for (int sample = 0; sample < numSamples; ++sample) {
-                const float in = channelData[sample];
-                float out = 0.0f;
+        for (int sample = 0; sample < numSamples; ++sample) {
+            const float inL = (1.0f - currentBalance) * channelDataL[sample];
+            const float inR = currentBalance * channelDataR[sample];
+            float outL = 0.0f;
+            float outR = 0.0f;
 
-                float readPosition =
-                    fmodf((float)localWritePosition - currentDelayTime + (float)delayBufferSamples, delayBufferSamples);
-                int localReadPosition = floorf(readPosition);
+            float readPosition =
+                fmodf((float)localWritePosition - currentDelayTime + (float)delayBufferSamples, delayBufferSamples);
+            int localReadPosition = floorf(readPosition);
 
-                if (localReadPosition != localWritePosition) {
-                    float fraction = readPosition - (float)localReadPosition;
-                    float delayed1 = delayData[(localReadPosition + 0)];
-                    float delayed2 = delayData[(localReadPosition + 1) % delayBufferSamples];
-                    out = delayed1 + fraction * (delayed2 - delayed1);
+            if (localReadPosition != localWritePosition) {
+                float fraction = readPosition - (float)localReadPosition;
+                float delayed1L = delayDataL[(localReadPosition + 0)];
+                float delayed1R = delayDataR[(localReadPosition + 0)];
+                float delayed2L = delayDataL[(localReadPosition + 1) % delayBufferSamples];
+                float delayed2R = delayDataR[(localReadPosition + 1) % delayBufferSamples];
+                outL = delayed1L + fraction * (delayed2L - delayed1L);
+                outR = delayed1R + fraction * (delayed2R - delayed1R);
 
-                    channelData[sample] = in + currentMix * (out - in);
-                    delayData[localWritePosition] = in + out * currentFeedback;
-                }
-
-                if (++localWritePosition >= delayBufferSamples)
-                    localWritePosition -= delayBufferSamples;
+                channelDataL[sample] = inL + currentMix * (outL - inL);
+                channelDataR[sample] = inR + currentMix * (outR - inR);
+                delayDataL[localWritePosition] = inL + outR * currentFeedback;
+                delayDataR[localWritePosition] = inR + outL * currentFeedback;
             }
+
+            if (++localWritePosition >= delayBufferSamples)
+                localWritePosition -= delayBufferSamples;
         }
 
         delayWritePosition = localWritePosition;
