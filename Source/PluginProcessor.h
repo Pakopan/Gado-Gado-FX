@@ -28,6 +28,7 @@ public:
     };
 
     juce::StringArray fftSizeItemsUI = {
+    "16",
     "32",
     "64",
     "128",
@@ -40,7 +41,8 @@ public:
     };
 
     enum fftSizeIndex {
-        fftSize32 = 0,
+        fftSize16 = 0,
+        fftSize32,
         fftSize64,
         fftSize128,
         fftSize256,
