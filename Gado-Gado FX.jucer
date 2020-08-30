@@ -5,15 +5,17 @@
               companyName="Digtive Audio Processing Internship Team" pluginFormats="buildStandalone,buildVST3">
   <MAINGROUP id="JDqoOn" name="Gado-Gado FX">
     <GROUP id="{CA019D8F-4285-CBE1-0B8B-D2BDFBECF8CE}" name="Source">
+      <GROUP id="{B8429953-F7F0-829A-76B9-FFC6F03159DB}" name="Header">
+        <FILE id="yDoKDO" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+        <FILE id="qjW2zB" name="PluginParameter.h" compile="0" resource="0"
+              file="Source/PluginParameter.h"/>
+        <FILE id="xyJbk8" name="PluginProcessor.h" compile="0" resource="0"
+              file="Source/PluginProcessor.h"/>
+      </GROUP>
       <FILE id="KNkL6A" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
-      <FILE id="xyJbk8" name="PluginProcessor.h" compile="0" resource="0"
-            file="Source/PluginProcessor.h"/>
       <FILE id="Gw2JoA" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
-      <FILE id="yDoKDO" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
-      <FILE id="qjW2zB" name="PluginParameter.h" compile="0" resource="0"
-            file="Source/PluginParameter.h"/>
     </GROUP>
     <GROUP id="{F6105CF6-A334-D8A2-2E18-5A7660574F8D}" name="Image">
       <FILE id="YQNsRg" name="gado.png" compile="0" resource="1" file="../../gado.png"/>
