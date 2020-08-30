@@ -21,12 +21,18 @@ void GadoGadoFXAudioProcessorEditor::paint(juce::Graphics& g)
     g.setFont(16.0f);
     g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
     g.setColour(juce::Colours::slategrey);
+    
     juce::Line<float> line_1(juce::Point<float>(0, 215),
-                          juce::Point<float>(500, 215));
+                             juce::Point<float>(500, 215));
     juce::Line<float> line_2(juce::Point<float>(500, 0),
                              juce::Point<float>(500, 450));
-    g.drawLine(line_1, 2.0f);
-    g.drawLine(line_2, 2.0f);
+    juce::Line<float> line_3(juce::Point<float>(180, 0),
+                             juce::Point<float>(180, 215));
+
+    g.drawLine(line_1, 3.0f);
+    g.drawLine(line_2, 3.0f);
+    g.drawLine(line_3, 3.0f);
+
     juce::Image logo_imfi= juce::ImageCache::getFromMemory(BinaryData::logo_imfi_png, BinaryData::logo_imfi_pngSize);
     juce::Image logo_gado = juce::ImageCache::getFromMemory(BinaryData::gado_png, BinaryData::gado_pngSize);
     g.drawImageAt(logo_imfi, 560, 400);
@@ -38,13 +44,13 @@ void GadoGadoFXAudioProcessorEditor::resized()
 {
 
     G_GainSlider.setBounds(30, 75, 125, 125);
-    G_ToselGainControl.setBounds(145, 0, 25, 20);
+    G_ToselGainControl.setBounds(145, 10, 25, 20);
 
-    D_BalanceSlider.setBounds(200, 50, 120, 50);
-    D_DelayTimeSlider.setBounds(360, 50, 120, 50);
+    D_BalanceSlider.setBounds(200, 60, 120, 50);
+    D_DelayTimeSlider.setBounds(360, 60, 120, 50);
     D_FeedbackSlider.setBounds(200, 150, 120, 50);
     D_MixSlider.setBounds(360, 150, 120, 50);
-    D_ToselDelayControl.setBounds(400, 0, 25, 20);
+    D_ToselDelayControl.setBounds(400, 10, 25, 20);
 
     EQ_FrequencySlider.setBounds(30, 280, 97  , 97);
     EQ_QFactorSlider.setBounds(205, 280, 97, 97);
@@ -58,7 +64,7 @@ void GadoGadoFXAudioProcessorEditor::resized()
     PS_FFTSize.setBounds(600, 180, 250, 30);
     PS_HopSize.setBounds(600, 225, 250, 30);
     PS_WindowType.setBounds(600, 270, 250, 30);
-    PS_ToselPS.setBounds(763, 0, 80, 20);
+    PS_ToselPS.setBounds(763, 10, 80, 20);
 }
 
 GadoGadoFXAudioProcessorEditor::~GadoGadoFXAudioProcessorEditor()
