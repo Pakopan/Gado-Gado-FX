@@ -13,4 +13,4 @@ Gado-Gado FX is a VST3 plugin based on Juce C++ Framework that contains multiple
   - Pitch Shift
 
 # Screenshot
-![](https://i.ibb.co/WVHpRXq/SS.png)
+![](https://i.ibb.co/Nr79CD0/SS.png)
