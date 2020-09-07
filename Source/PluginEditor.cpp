@@ -1,6 +1,5 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-
 //======================================= Built in functions ===========================================
 GadoGadoFXAudioProcessorEditor::GadoGadoFXAudioProcessorEditor (GadoGadoFXAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
@@ -18,6 +17,7 @@ GadoGadoFXAudioProcessorEditor::GadoGadoFXAudioProcessorEditor (GadoGadoFXAudioP
 
 void GadoGadoFXAudioProcessorEditor::paint(juce::Graphics& g)
 {
+
     g.setFont(16.0f);
     g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
     g.setColour(juce::Colours::slategrey);
@@ -180,11 +180,11 @@ void GadoGadoFXAudioProcessorEditor::timerCallback()
 
 void GadoGadoFXAudioProcessorEditor::updateUIcomponents()
 {
-    juce::String bandwidthText = juce::String::formatted("Bandwidth: %.1fHz",
+   juce::String bandwidthText = juce::String::formatted("Bandwidth: %.1fHz",
                                     audioProcessor.paramFrequency.getTargetValue() /
                                     audioProcessor.paramQfactor.getTargetValue());
-                                    
-   
+                                                                   
+
     PS_BandwidthLabel.setText(bandwidthText, juce::dontSendNotification);
 
     //=============================================================================================

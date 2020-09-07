@@ -58,14 +58,12 @@ public:
         hopSize2 = 0,
         hopSize4,
         hopSize8,
-        hopSize16,
     };
 
     juce::StringArray hopSizeItemsUI = {
         "1/2 Window",
         "1/4 Window",
         "1/8 Window",
-        "1/16 Window",
     };
 
     //======================================
@@ -307,8 +305,9 @@ public:
     PluginParameterComboBox paramHopSize;
     PluginParameterComboBox paramWindowType;
     PluginParameterToggle paramTogglePS;
-
 private:
+    
+
     void DelayMode(juce::AudioBuffer<float>& buffer);
     void GainControlMode(juce::AudioBuffer<float>& buffer);
     void ParameterEQMode(juce::AudioBuffer<float>& buffer);

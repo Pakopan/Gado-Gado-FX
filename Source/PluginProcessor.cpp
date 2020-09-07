@@ -225,6 +225,7 @@ bool GadoGadoFXAudioProcessor::isBusesLayoutSupported (const BusesLayout& layout
 
 void GadoGadoFXAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+
    GainControlMode(buffer);
    DelayMode(buffer);
    ParameterEQMode(buffer);
